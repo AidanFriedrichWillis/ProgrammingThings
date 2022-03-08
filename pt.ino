@@ -1,3 +1,5 @@
+
+//The included libaries for the zumo to funtion
 #include <QTRSensors.h>
 #include <Zumo32U4LineSensors.h>
 #include "TurnSensor.h"
@@ -5,6 +7,7 @@
 #include <Zumo32U4Buzzer.h>
 #include <Zumo32U4Motors.h>
 
+//Creating an object from the libaries from the zumo
 Zumo32U4Motors motors;
 Zumo32U4LineSensors lineSensors;
 L3G gyro;
@@ -14,13 +17,15 @@ Zumo32U4Encoders encode;
 Zumo32U4Buzzer buzzer;
 
 
-
+//Defining data is more efficinet and readable
 #define NUM_SENSORS 3
+#define CALIBERATE_SPEED  200
+
 unsigned int lineSensorValues[NUM_SENSORS];
 
-int inByte = 0;         // incoming serial byte
-int speedr = 0;         //speed of left engine
-int speedl = 0;         //speed of rigth engine
+//All the global variables Used within the program
+int speedr = 0;        
+int speedl = 0;         
 bool autoMode = true;
 int calibrateData[3];                                   
 unsigned int sensor_values[NUM_SENSORS];                
@@ -35,15 +40,15 @@ int roomsSeached = 0;
 
 
 
-#define CALIBERATE_SPEED  200
 
-
+//A funtion for the gyro scope to return the angle in degrees.
 
 int32_t getAngle() {
   
   return (((int32_t)turnAngle >> 16) * 360) >> 16;
 }
 
+//A rotational algrithum
 void rotationAl(int angle){
   delay(500);
   turnSensorReset();
@@ -56,7 +61,7 @@ void rotationAl(int angle){
  }
 
 
-
+// My calibration funtion which sets up all the sensors I will use.
 void calibrateSensors()
 {  
   
@@ -87,7 +92,6 @@ void calibrateSensors()
 
   }
 
-  
      for (int i = 0; i < NUM_SENSORS; i++){
       calibrateData[i] = lineSensors.calibratedMaximumOn[i];
   }
@@ -96,6 +100,7 @@ void calibrateSensors()
   motors.setSpeeds(0, 0);
 }
 
+//The initial setup for the progrma to start, I wait for user input here
 void setup()
 {
 
@@ -110,6 +115,7 @@ void setup()
       
 }
 
+//This checks at the start if the input from the user is P to activate search room mode
 void checkAtRoom(){
 
     if(option == 'p'){
@@ -119,6 +125,7 @@ void checkAtRoom(){
       
   
  }
+ //this checks if the user has pressed k, which activates manual mode
  void checkMan(){
 
     if(option == 'k'){
@@ -129,7 +136,7 @@ void checkAtRoom(){
   
  }
 
-
+// This is the code that runs infinately or untill stopped, I check what mode the zumo is in every time it loops, allowing me to run the correct funtions
 void loop(){
 
 lineSensors.read(sensor_values);
@@ -171,7 +178,7 @@ if(mode == 0){
 }
 
 
-
+// This contains the algorithums I have used to check if the zumo has hit a line.
 void autoFunc(){
 
 
@@ -208,7 +215,7 @@ void autoFunc(){
   }
 
 
-
+// THis checks if the proxy sensor has gotten a high reading indicating there is a person, it returns a boolean value
   boolean checkPeople(){
       
     proxSensors.read();
@@ -227,7 +234,7 @@ void autoFunc(){
   }
   
   }
-
+// this is the movement for the scanning of the room I use unit16_t interger for efficiency and memory ssaving.
   void scanRoom(){
     boolean isPerson = false;
 
@@ -257,7 +264,7 @@ for(uint16_t i = 0; i <120 ; i++){
     
     
     }
-
+  // This moves the robot forwards
   void  moveF(){
      
       encode.getCountsAndResetRight();
@@ -272,6 +279,7 @@ for(uint16_t i = 0; i <120 ; i++){
 
    
     }
+    // this moves the zumo backwards
     void  moveB(){
      
       encode.getCountsAndResetRight();
@@ -341,7 +349,7 @@ for(uint16_t i = 0; i <120 ; i++){
          
 
   }
-
+//this puts all the movements realated to scanning a room together, based upon what value the user has given
 void doScan(){
   
   
@@ -377,7 +385,8 @@ void doScan(){
   
   
   }
-
+  
+// this is what runs when a corner has been hit, waiting for the users input.
 void cornerControl(){
 
         if(option == 'r'){
@@ -406,7 +415,7 @@ void cornerControl(){
 
 
 
-
+// this is my manual funtion which speeds up or down the robot based on the input recieved
 void manFunc(){
   //This will speed down the engine unless a command to speed up is received
   if(abs(speedr)>0){speedr=speedr-speedr/5;}
@@ -453,7 +462,6 @@ void manFunc(){
         doScan();
         break;
      case 'v':
-        doScan();
         buzzer.playFrequency(500,250,10);
         break;
       }
